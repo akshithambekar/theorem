@@ -6,7 +6,7 @@ from langchain_core.output_parsers import PydanticOutputParser # pyright: ignore
 from langchain.agents import create_tool_calling_agent, AgentExecutor # pyright: ignore[reportMissingImports]
 load_dotenv()
 
-class ContextResponse(BaseModel):
+class LessonPlan(BaseModel):
     topic: str
     learning_objectives: list[str]
     prerequisites: list[str]
@@ -14,20 +14,17 @@ class ContextResponse(BaseModel):
     angles: list[str]
     tools_used: list[str]
 
-def analyze_context(query: str):
+def lesson_planner_agent(context_data):
     llm = ChatOpenAI(model="gpt-4o-mini")
-    parser = PydanticOutputParser(pydantic_object=ContextResponse)
-    with open("prompts/analyze_context_prompt.txt", "r") as f:
+    parser = PydanticOutputParser(pydantic_object=LessonPlan)
+    with open("prompts/lesson_planner_prompt.txt", "r") as f:
         system_prompt = f.read()
 
     prompt = ChatPromptTemplate.from_messages(
         [
-            (
-                "system",
-                system_prompt,
-            ),
+            ("system", system_prompt),
             ("placeholder", "{chat_history}"),
-            ("human", "{query}"),
+            ("human", "{context_data}"),
             ("placeholder", "{agent_scratchpad}")
         ]
     ).partial(format_instructions=parser.get_format_instructions())
@@ -39,8 +36,8 @@ def analyze_context(query: str):
         tools=tools
     )
 
-    context_agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
-    raw_response = context_agent_executor.invoke({"query": query})
+    lesson_agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+    raw_response = lesson_agent_executor.invoke({"context_data": str(context_data)})
 
     try:
         structured_response = parser.parse(raw_response.get("output"))
