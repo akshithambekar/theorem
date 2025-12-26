@@ -1,3 +1,9 @@
+# Env
 env*
 .env
 __pycache__
+
+# AI tools
+.claude
+CLAUDE.md
+.cursor
