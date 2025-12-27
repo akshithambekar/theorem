@@ -11,6 +11,9 @@ def save_to_txt(data: str, filename: str = "research_output.txt"):
 
     return f"Data saved successfully to {filename}"
 
+def manim_api_reference():
+    pass
+
 search = DuckDuckGoSearchRun()
 search_tool = Tool(
     name="search",
