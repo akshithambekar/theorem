@@ -42,8 +42,9 @@ Represents a conceptual visual entity that may persist across scenes.
 
 Notes:
 
--   `type` is conceptual, not a Manim class
--   Objects may be implemented downstream using one or more Manim primitives
+-   Do not use vague, semantic-only types. `type` **must** be decomposable into real Manim primitives.
+-   If an object's visual meaning depends on structure, constraints must be provided.
+-   Objects that persist across scenes must not be redefined unless constraints or labels change.
 
 ### Constraint
 
@@ -66,6 +67,12 @@ Represents a visual change over time.
 -   `duration` (optional): approximate time this action occupies within the beat
 
 Do not include animation parameters, easing functions, or Manim method names.
+
+Notes:
+
+-   Actions must be directionally clear
+-   Any visual element that appears (alerts, markers, warnings) must be an object with a creation action
+-   Do not rely on prose alone to introduce visual meaning
 
 ## Manim Constraints
 
@@ -104,4 +111,4 @@ You are not allowed to:
 
 ## Output Validity
 
-Your output must always be valid JSON. All identifiers must be internally consistent. This output will be parsed automatically, so precision matters.
+Your output must always be valid JSON. All identifiers must be internally consistent. This output will be parsed automatically, so precision is mandatory.
