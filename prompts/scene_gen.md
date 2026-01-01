@@ -113,15 +113,15 @@ Ask **API-focused questions** that return class definitions and method signature
 The tool returns JSON with this structure (or similar):
 
 ```json
-{
+{{
     "codeSnippets": [
-        {
+        {{
             "codeTitle": "snippet title",
             "codeDescription": "what the code does",
-            "codeList": [{ "code": "actual Python code from Manim docs" }]
-        }
+            "codeList": [{{ "code": "actual Python code from Manim docs" }}]
+        }}
     ]
-}
+}}
 ```
 
 ### Extraction Strategy
