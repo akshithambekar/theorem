@@ -6,6 +6,7 @@ from langchain_core.output_parsers import PydanticOutputParser # pyright: ignore
 from langchain.agents import create_tool_calling_agent, AgentExecutor # pyright: ignore[reportMissingImports]
 from typing import List, Optional, Any
 from agents.script_gen import ScriptGeneration
+from tools import manim_tool
 
 load_dotenv()
 
@@ -40,11 +41,11 @@ class SceneDescription(BaseModel):
 
 def generate_scene(script: ScriptGeneration):
     script_json = script.model_dump_json()
-    llm = ChatOpenAI(model="gpt-4o-mini")
+    llm = ChatOpenAI(temperature=0.4, model="gpt-4o-mini")
     parser = PydanticOutputParser(pydantic_object=SceneDescription)
     with open("prompts/scene_gen.md", "r") as f:
         system_prompt = f.read()
-    prompt = ChatPromptTemplate.from_messages( # needs to change to accommodate script gen messages. does not take user query
+    prompt = ChatPromptTemplate.from_messages(
         [
             ("system", system_prompt),
             ("placeholder", "{chat_history}"),
@@ -52,7 +53,7 @@ def generate_scene(script: ScriptGeneration):
             ("placeholder", "{agent_scratchpad}")
         ]
     ).partial(format_instructions=parser.get_format_instructions())
-    tools = []
+    tools = [manim_tool]
     agent = create_tool_calling_agent(
         llm=llm,
         prompt=prompt,
@@ -60,7 +61,6 @@ def generate_scene(script: ScriptGeneration):
     )
     context_agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
     raw_response = context_agent_executor.invoke({"script_json": script_json})
-    
     try:
         structured_response = parser.parse(raw_response.get("output"))
         return structured_response
