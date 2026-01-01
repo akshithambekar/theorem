@@ -1,31 +1,52 @@
-from langchain_community.tools import WikipediaQueryRun, DuckDuckGoSearchRun # pyright: ignore[reportMissingImports]
-from langchain_community.utilities import WikipediaAPIWrapper # pyright: ignore[reportMissingImports]
 from langchain.tools import Tool # pyright: ignore[reportMissingImports]
-from datetime import datetime
+import requests
+import os
+import json
 
-def save_to_txt(data: str, filename: str = "research_output.txt"):
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    formatted_text = f"--- Research Output ---\nTimestamp: {timestamp}\n\n{data}\n"
-    with open(filename, "a", encoding="utf-8") as f:
-        f.write(formatted_text)
+def manim_doc_reference(query: str) -> str:
+    context7_api_key = os.getenv("CONTEXT7_API_KEY")
+    if not context7_api_key:
+        return "Error: context7 API key not set"
+    if not query or not query.strip():
+        return "Error: query cannot be empty"
 
-    return f"Data saved successfully to {filename}"
+    url = "https://context7.com/api/v2/context"
+    headers = {
+        "CONTEXT7_API_KEY": f"{context7_api_key}"
+    }
+    params = {
+        "libraryId": "/3b1b/manim",
+        "query": query,
+        "type": "json"
+    }
 
-def manim_api_reference():
-    pass
+    try:
+        response = requests.get(url, headers=headers, params=params, timeout=10)
+        response.raise_for_status()
+    except requests.exceptions.Timeout:
+        return "Error: context7 API request timed out after 10 seconds"
+    except requests.exceptions.ConnectionError:
+        return "Error: Could not connect to context7 API. Check your internet connection."
+    except requests.exceptions.HTTPError:
+        return f"Error: context7 API returned status {response.status_code}"
+    except requests.exceptions.RequestException as e:
+        return f"Error: Request failed: {str(e)}"
 
-search = DuckDuckGoSearchRun()
-search_tool = Tool(
-    name="search",
-    func=search.run,
-    description="Search the web for information",
-)
+    try:
+        result = response.json()
+    except json.JSONDecodeError as e:
+        return f"Error: Invalid JSON response: {str(e)}"
 
-api_wrapper = WikipediaAPIWrapper(top_k_results=1, doc_content_chars_max=100)
-wikipedia_tool = WikipediaQueryRun(api_wrapper=api_wrapper)
+    if not result:
+        return "Error: Empty response from context7"
+    if "codeSnippets" not in result:
+        return f"Error: Unexpected response format"
+    if not result["codeSnippets"]:
+        return "No Manim documentation found for this query"
+    return json.dumps(result, indent=2)
 
-save_to_txt_tool = Tool(
-    name="save_text_to_file",
-    func=save_to_txt,
-    description="Save research data to a text file"
+manim_tool = Tool(
+    name="manim_doc_reference",
+    func=manim_doc_reference,
+    description="Access Manim documentation using context7"
 )
