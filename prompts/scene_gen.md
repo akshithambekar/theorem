@@ -80,6 +80,68 @@ Notes:
 -   If Manim lacks a direct class for an object (e.g. right triangle), the object must be representable using constraints and later decomposed using supportive primitives
 -   Do not invent new Manim classes or abstractions
 
+## Using the Manim Documentation Tool
+
+You have access to `manim_doc_reference`, a tool that queries the 3b1b/manim documentation. Use it to validate object types, discover available classes, and verify constraints before generating scene plans.
+
+### When to Query
+
+-   Before defining any object type you're uncertain about
+-   When you need to verify valid action types or animation methods
+-   When applying geometric constraints and need to check parameter syntax
+-   Whenever the script requires a specific geometric primitive
+
+### How to Query Effectively
+
+Ask **API-focused questions** that return class definitions and method signatures, not tutorial-style questions:
+
+**Good queries:**
+
+-   "What geometric primitive classes exist in Manim?"
+-   "List all triangle and polygon classes in Manim"
+-   "What animation methods are available in Manim?"
+-   "How to set angles or rotation in Manim objects?"
+-   "What methods position or align objects in Manim?"
+
+**Bad queries:**
+
+-   "How do I draw a triangle?" (too tutorial-focused)
+-   "Explain Manim scenes" (too broad)
+
+### Response Structure
+
+The tool returns JSON with this structure (or similar):
+
+```json
+{
+    "codeSnippets": [
+        {
+            "codeTitle": "snippet title",
+            "codeDescription": "what the code does",
+            "codeList": [{ "code": "actual Python code from Manim docs" }]
+        }
+    ]
+}
+```
+
+### Extraction Strategy
+
+1. **Find class names**: Look in `codeList[].code` for class instantiations like `Circle()`, `Square()`, `Polygon()`
+2. **Identify action types**: Extract animation method names like `ShowCreation()`, `ReplacementTransform()`, `FadeIn()`
+3. **Discover parameters**: Observe method calls like `set_fill()`, `set_stroke()`, `rotate()` to understand available properties
+4. **Validate constraints**: Check how geometric properties (angles, positions) are set in code examples
+
+### Example Workflow
+
+If the script mentions "right triangle":
+
+1. Query: `"What triangle or polygon classes exist in Manim?"`
+2. Examine returned code snippets for class names and constructors
+3. If `Triangle` exists, use it; if not, plan to use `Polygon` with right angle constraint
+4. Define Object with validated type and appropriate constraints
+
+**Important**: Always extract information from the actual code in `codeList[].code`, not just descriptions. Class names and method signatures in the code are the source of truth.
+
 ## Continuity Rules
 
 -   If `continuity` is true, all objects from the previous scene persist unless explicitly removed
