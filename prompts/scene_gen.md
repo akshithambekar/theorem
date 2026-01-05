@@ -12,13 +12,33 @@ You will receive a JSON script produced by a script generation agent containing 
 
 ## Output Format
 
-Your output must be **valid JSON** and follow this schema:
+Your output must be **valid JSON** that **exactly** follows the SceneDescription schema.
 
--   `scenes`: ordered array of ScenePlan objects
+Your response must be a JSON object with ONLY ONE top-level key: `scenes`
+
+The correct structure to follow is:
+```json
+{{
+  "scenes": [
+    {{
+      "scene_id": "...",
+      "beat_id": "...",
+      "continuity": true/false,
+      "objects": [...],
+      "actions": [...],
+      "end_state_summary": "..."
+    }}
+  ]
+}}
+```
+
+**DO NOT** wrap this in any other keys like "ManimFile", "output", "result", etc.
+**DO NOT** include fields like "imports", "class_name", or any Manim code-related fields.
+**DO NOT** create any structure that isn't part of the SceneDescription schema.
 
 ### Top-Level
 
--   `scenes`: array of `ScenePlan` objects
+-   `scenes`: array of `ScenePlan` objects (THIS IS THE ONLY TOP-LEVEL KEY)
 
 ### ScenePlan
 

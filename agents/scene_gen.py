@@ -26,7 +26,7 @@ class Action(BaseModel):
     targets: List[str] = Field(description="object_id(s) this action applies to")
     description: str = Field(description="high-level description of what happens visually")
     sync_cue_id: Optional[str] = Field(default=None, description="optional reference to a sync cue from the beat")
-    duration: Optional[float] = Field(default=None, description="approximate time this action occupies within the beat") 
+    duration: Optional[float] = Field(default=None, description="approximate time this action occupies within the beat")
 
 class ScenePlan(BaseModel):
     scene_id: str = Field(description="identifier for this scene")
