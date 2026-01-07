@@ -48,5 +48,5 @@ def manim_doc_reference(query: str) -> str:
 manim_tool = Tool(
     name="manim_doc_reference",
     func=manim_doc_reference,
-    description="Access Manim documentation using context7"
+    description="REQUIRED: Validate Manim class/animation exists before using. Query EVERY constructor and animation call to ensure it's a real Manim API. Returns documentation if exists, error if not."
 )
